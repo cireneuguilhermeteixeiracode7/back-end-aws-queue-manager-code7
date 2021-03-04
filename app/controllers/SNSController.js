@@ -1,7 +1,13 @@
 const handleError = require('../../utils/handler-error');
 const handleSuccess = require('../../utils/handler-success');
 const SNSSQSManager = require('../../sns-sqs');
+const AWS = require("aws-sdk");
 
+AWS.config.update({
+  region: process.env.AWS_REGION,
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_KEY,
+});
 
 exports.getAllTopics = async (req,resp) => {
     
@@ -60,6 +66,25 @@ exports.subscribeTopic = async (req,resp) => {
             params.queuArn
         );
         return handleSuccess(resp, result);
+        
+    }catch(error){
+        console.log(error);
+        return handleError(resp,error);
+    }
+}
+
+
+exports.getSubscriptionsToTopic = async (req,resp) => {
+    
+    try{
+
+
+        const topicArn = req.params.topic_arn;
+        const listSubscriptions = await new AWS.SNS({ apiVersion: process.env.AWS_API_VERSION })
+        .listSubscriptionsByTopic({TopicArn: topicArn})
+        .promise();
+
+        return handleSuccess(resp, listSubscriptions);
         
     }catch(error){
         console.log(error);
