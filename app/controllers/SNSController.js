@@ -1,13 +1,6 @@
 const handleError = require('../../utils/handler-error');
 const handleSuccess = require('../../utils/handler-success');
 const SNSSQSManager = require('../../sns-sqs');
-const AWS = require("aws-sdk");
-
-AWS.config.update({
-  region: process.env.AWS_REGION,
-  accessKeyId: process.env.AWS_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_SECRET_KEY,
-});
 
 exports.getAllTopics = async (req,resp) => {
     
@@ -40,12 +33,16 @@ exports.publishTopic = async (req,resp) => {
     
     try{
         const params = req.body;
+        params.MessageGroupId = Date.now().toString();
+        params.MessageDeduplicationId = Date.now().toString();
+        params.Name = params.TopicArn.split(':')[5];
         const result = await new SNSSQSManager.default().publishToTopic(
             params.Name,
             params.Message,
             params.MessageGroupId,
             params.MessageDeduplicationId,
-            params.TopicArn
+            params.TopicArn,
+            params.MessageAttributes
         );
         return handleSuccess(resp, result);
         
@@ -60,33 +57,54 @@ exports.publishTopic = async (req,resp) => {
 exports.subscribeTopic = async (req,resp) => {
     
     try{
+
         const params = req.body;
         const result = await new SNSSQSManager.default().subscribeToTopic(
             params.TopicArn,
-            params.queuArn
+            params.queueArn,
+            params.QueueUrl
         );
         return handleSuccess(resp, result);
         
     }catch(error){
+        console.log('errorrrr',error);
+        return handleError(resp,error);
+    }
+}
+
+
+exports.getSubscriptionsInTopic = async (req,resp) => {
+    
+    try{
+
+        const topicArn = req.params.topic_arn;
+        const listSubscriptions = await new SNSSQSManager.default()
+            .getSubscriptionsInTopic(topicArn);
+        listSubscriptions['TopicArn'] = topicArn;
+        return handleSuccess(resp, listSubscriptions);
+        
+    } catch(error) {
         console.log(error);
         return handleError(resp,error);
     }
 }
 
 
-exports.getSubscriptionsToTopic = async (req,resp) => {
+exports.setFilterPolicyAttribute = async (req,resp) => {
     
-    try{
+    try {
 
+       
+        const params = req.body;
+        const setSubscriptionAttributes = await new SNSSQSManager.default()
+        .setFilterPolicyAttributeInSubscription(
+            params.SubscriptionArn,
+            params.attributeValue
+        )
 
-        const topicArn = req.params.topic_arn;
-        const listSubscriptions = await new AWS.SNS({ apiVersion: process.env.AWS_API_VERSION })
-        .listSubscriptionsByTopic({TopicArn: topicArn})
-        .promise();
-
-        return handleSuccess(resp, listSubscriptions);
+        return handleSuccess(resp, setSubscriptionAttributes);
         
-    }catch(error){
+    } catch(error){
         console.log(error);
         return handleError(resp,error);
     }
