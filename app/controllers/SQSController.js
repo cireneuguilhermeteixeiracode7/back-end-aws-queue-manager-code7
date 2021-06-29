@@ -1,6 +1,7 @@
 const handleError = require('../../utils/handler-error');
 const handleSuccess = require('../../utils/handler-success');
-const SNSSQSManager = require('../../sns-sqs');
+const SNSSQSManager = require('sns-sqs-slq-code7');
+
 
 
 exports.getAllQueue = async (req,resp) => {

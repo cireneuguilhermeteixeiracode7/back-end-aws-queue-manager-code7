@@ -1,10 +1,58 @@
 const handleError = require('../../utils/handler-error');
 const handleSuccess = require('../../utils/handler-success');
-const SNSSQSManager = require('../../sns-sqs');
+const SNSSQSManager = require('sns-sqs-slq-code7');
+const OrchyBase = require("orchy-base-code7");
+const AWS = require("aws-sdk");
+
+const orchybase = new OrchyBase.default();
+
+
 
 exports.getAllTopics = async (req,resp) => {
     
     try{
+        console.log('xxxx');
+        const contacts = await orchybase.getContacts(1);
+        // console.log(contacts);
+        // const user = AWS.OpsWorks();
+
+        // const newLoad = await orchybase.createLoad({
+        //     id_flow: '1312',
+        //     id_org: 123,
+        //     register: Date.now(),
+        //     active: true,
+        //     created_at: Date.now(),
+        //     updated_at: null,
+        // });
+        
+        // console.log(newLoad);
+
+
+        // const newContact = await orchybase.createContact({
+        //     id_load: newLoad.id_load,
+        //     key: `xxxxxxxxxx${Date.now()}`,
+        //     name: 'Cireneu G.',
+        //     created_at: Date.now(),
+        //     updated_at: null,
+        // });
+        
+        // console.log(newContact);
+
+
+
+        // const newContactData = await orchybase.createContactData({
+        //     id_contact: 1,
+        //     data_type: 'landline',
+        //     contact_data: `bbbbbbb`,
+        //     status: 'pending',
+        //     created_at: Date.now(),
+        //     updated_at: null,
+        // });
+        // console.log(newContactData);
+        
+        // const x = await orchybase.deleteContact({id_contact: 2});
+        // console.log(x);
+        
         const result = await new SNSSQSManager.default().getAllTopics();
         return handleSuccess(resp, result);
         

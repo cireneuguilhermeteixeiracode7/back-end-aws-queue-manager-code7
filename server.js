@@ -3,6 +3,8 @@ const bodyParser = require("body-parser");
 const path = require('path');
 const snsRouter = require('./app/routes/sns-routes')
 const sqsRouter = require('./app/routes/sqs-routes')
+const carga = require('./app/routes/carga-routes')
+
 const cors = require('cors')
 
 const app = express()
@@ -17,6 +19,7 @@ const uri = '/api'
 
 app.use(`${uri}/sns`,snsRouter)
 app.use(`${uri}/sqs`,sqsRouter)
+app.use(`${uri}/carga`,carga)
 
 
 
